@@ -3,7 +3,7 @@
 A gentle pipe puzzle for little ones. Turn the pipes so water flows from the tap to the flowers.
 No ads, no timers, no scores. Works offline once added to a home screen.
 
-**Play:** https://domsspeedyzebra.github.io/puzzle-garden/
+**Play:** https://domsspeedyzebra.github.io/Puzzle-garden/
 On iPhone: open in Safari → Share → **Add to Home Screen**.
 
 ## Files
