@@ -30,6 +30,15 @@ Each level is a grid of cells separated by spaces, one string per row:
 | `T2` | tap — number is the direction water comes out |
 | hex digit | a pipe, written in its **solved** position |
 | `!` + hex | a **stuck** metal pipe that can't be turned (e.g. `!a`) |
+| `?` + hex | an empty **slot**; that piece goes in the tray (e.g. `?3`) |
+| `M` + hex | a slot covered by a **pebble** to drag away |
+| `M` | a pebble on grass |
+| `H` | a hedgehog that must stay dry |
+| `X` / `?X` | a **bridge** (two pipes crossing), fixed or in the tray |
+| `T2r`, `Fr` | red tap / red flower (Duck Pond) |
+| `T2:3`, `F:5` | tap giving 3 blocks / flower needing 5 (Number Meadow) |
+
+`extra:["3","a"]` adds spare decoy pieces to the tray.
 
 Pipe openings add up: **N=1, E=2, S=4, W=8**.
 So `a` (10) = E+W straight, `5` = N+S straight, `3` = N+E corner, `c` (12) = S+W corner, `e` (14) = E+S+W tee, `f` = cross.
@@ -42,8 +51,12 @@ So `a` (10) = E+W straight, `5` = N+S straight, `3` = N+E corner, `c` (12) = S+W
     "F a 9 ."], mix:3},
 ```
 
+## Parent shortcut
+
+Hold the **Puzzle Garden** title for 3 seconds to unlock every world (do it again to lock).
+
 ## Releasing an update
 
 1. Edit the files.
 2. In `sw.js`, bump `CACHE` (e.g. `puzzle-garden-v1` → `v2`) so phones fetch the new version.
-3. Commit and push to `main`. GitHub Pages updates in a minute or two.
+3. Commit and push to `main`. GitHub Pages updates in a minute or two, and the game reloads itself on the next menu screen.

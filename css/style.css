@@ -12,7 +12,11 @@
   --petal:#ff7fac; --petal-2:#ffb3cd; --centre:#ffd23f; --bud:#5fae4f;
   --rock:#a2abb0; --rock-dark:#7d878d;
   --cube:#ffc93d; --cube-edge:#c98f10;
-  --metal:#c3ccd2; --metal-edge:#6f7c86; --bolt:#55616a;
+  --metal:#c3ccd2;
+  --red-water:#ef4f6a; --red-edge:#a92d45; --mix:#8f63c9; --mix-edge:#5d3f8c;
+  --bflower:#5fa8ee; --rflower:#f04f78;
+  --hog:#9a7350; --hog-dark:#6b4f35; --hog-face:#ecd0a8;
+  --pebble:#e3d3b2; --pebble-dark:#bfa982; --slot:#c48f58; --metal-edge:#6f7c86; --bolt:#55616a;
   --ink:#2c3a22; --card:#fffdf4;
   --display:"Baloo 2","Trebuchet MS",system-ui,sans-serif;
   color-scheme:light;
@@ -129,3 +133,47 @@ h2{margin:0;font-size:1.5rem;font-weight:800;text-align:center;flex:1}
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
 @keyframes drop{0%{transform:translate(0,0) scale(.4);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(1);opacity:0}}
 @keyframes puddle{0%{transform:scale(.2);opacity:.6}100%{transform:scale(1.4);opacity:0}}
+
+/* Coloured water: blue (default), red, and muddy purple when they mix */
+.wet.w-r .inner line,.wet.w-r .inner circle,.wet.w-r .inner path{stroke:var(--red-water)}
+.wet.w-r .inner circle{fill:var(--red-water)}
+.wet.w-r .edge line,.wet.w-r .edge path{stroke:var(--red-edge)} .wet.w-r .edge circle{fill:var(--red-edge)}
+.wet.w-mix .inner line,.wet.w-mix .inner path{stroke:var(--mix)} .wet.w-mix .inner circle{fill:var(--mix)}
+.wet.w-mix .edge line,.wet.w-mix .edge path{stroke:var(--mix-edge)} .wet.w-mix .edge circle{fill:var(--mix-edge)}
+.tap.on.w-r .inner line{stroke:var(--red-water)}
+.inner path{stroke:var(--hose);stroke-width:22;transition:stroke .35s}
+.edge path{stroke:var(--hose-edge);stroke-width:34}
+.wet .inner path{stroke:var(--water)} .wet .edge path{stroke:var(--water-edge)}
+
+/* Bridges: two pipes crossing; each keeps its own water */
+.bridge .ax-v .inner line,.bridge .ax-v .edge line{transition:stroke .35s}
+
+/* Tray of pieces and empty slots */
+.tray{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:14px auto 0;padding:10px;max-width:560px;min-height:40px;background:var(--soil-deep);border-radius:20px;box-shadow:inset 0 4px 0 rgba(0,0,0,.18);touch-action:none}
+.tray:empty::after{content:"";display:block;width:40px;height:40px;border-radius:12px;border:3px dashed rgba(255,255,255,.35)}
+.piece{touch-action:none;transition:transform .15s}
+.piece svg{width:100%;height:100%;display:block}
+.piece.sel{transform:translateY(-8px) scale(1.06);filter:drop-shadow(0 6px 0 rgba(0,0,0,.25))}
+.hole{fill:none;stroke:var(--slot);stroke-width:4;stroke-dasharray:10 8}
+.slot .patch{fill:var(--soil)}
+.board{touch-action:none}
+.lifted{opacity:.35}
+.ghost{position:fixed;left:0;top:0;pointer-events:none;z-index:30;filter:drop-shadow(0 10px 6px rgba(0,0,0,.3))}
+.ghost svg{width:100%;height:100%;display:block}
+.haspebble .pebble{animation:none}
+
+/* Hedgehog: asleep, then soaked and grumpy */
+.hog .awake{display:none}
+.soaked .hog .awake{display:inline} .soaked .hog .sleepy,.soaked .hog .zzz{display:none}
+.soaked .hog{animation:shiver .12s linear 6;transform-box:view-box;transform-origin:50% 80%}
+.zzz{animation:zz 2.4s ease-in-out infinite} .z2{animation-delay:.6s}
+@keyframes zz{0%,100%{transform:translateY(0);opacity:.2}50%{transform:translateY(-4px);opacity:.6}}
+@keyframes shiver{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+
+/* Number blocks on taps and flowers */
+.scube{fill:var(--cube);stroke:var(--cube-edge);stroke-width:1.5}
+.wcube{fill:var(--water);stroke:var(--water-edge);stroke-width:1.5}
+.wrong .flowerwrap{animation:nope .5s ease-in-out 2;transform-box:view-box;transform-origin:50px 90px}
+.wrong .centre{fill:#a88a5c}
+@keyframes nope{0%,100%{transform:rotate(0)}25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}}
+.splash.red i,.splash.red::before{background:var(--red-water)}
