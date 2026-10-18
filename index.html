@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Puzzle Garden</title>
+<meta name="description" content="A gentle pipe puzzle for little ones. No ads, no timers.">
+<!-- Makes it installable / full-screen when added to the home screen -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4f9a45">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Puzzle Garden">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap">
+<link rel="stylesheet" href="css/style.css">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box}</style>
+</head>
+<body>
+<div class="app">
+  <section class="screen" id="home">
+    <div class="top">
+      <h1>Puzzle <span>Garden</span></h1>
+      <button class="round" id="mute" aria-label="Sound on or off"></button>
+    </div>
+    <p class="sub">Turn the pipes. Water the flowers.</p>
+    <div class="plots" id="plots"></div>
+    <p class="foot">No ads. No timers. Just tap.</p>
+  </section>
+
+  <section class="screen" id="game" hidden>
+    <div class="bar">
+      <button class="round" id="homeBtn" aria-label="Back to garden"></button>
+      <div class="tower" id="lvlTower" aria-hidden="true"></div>
+      <button class="round" id="resetBtn" aria-label="Start this level again"></button>
+    </div>
+    <div class="bed"><div class="board" id="board"></div></div>
+  </section>
+</div>
+
+<div class="win" id="win" hidden>
+  <svg class="big" viewBox="0 0 100 100" aria-hidden="true">
+    <g fill="var(--petal)">
+      <ellipse cx="50" cy="22" rx="14" ry="20"/><ellipse cx="50" cy="22" rx="14" ry="20" transform="rotate(60 50 45)"/>
+      <ellipse cx="50" cy="22" rx="14" ry="20" transform="rotate(120 50 45)"/><ellipse cx="50" cy="22" rx="14" ry="20" transform="rotate(180 50 45)"/>
+      <ellipse cx="50" cy="22" rx="14" ry="20" transform="rotate(240 50 45)"/><ellipse cx="50" cy="22" rx="14" ry="20" transform="rotate(300 50 45)"/>
+    </g>
+    <circle cx="50" cy="45" r="15" fill="var(--centre)"/>
+    <circle cx="44" cy="42" r="2.4" fill="var(--ink)"/><circle cx="56" cy="42" r="2.4" fill="var(--ink)"/>
+    <path d="M43 49 q7 7 14 0" stroke="var(--ink)" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+  </svg>
+  <div class="row">
+    <button class="round" id="winHome" aria-label="Back to garden"></button>
+    <button class="go" id="nextBtn" aria-label="Next level"><svg viewBox="0 0 24 24"><path d="M5 12h12M12 6l6 6-6 6" stroke="#fff" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  </div>
+</div>
+<script src="js/levels.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>

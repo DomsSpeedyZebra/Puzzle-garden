@@ -1,0 +1,89 @@
+/* Puzzle Garden styles — colours are defined once at the top as variables */
+[hidden]{display:none!important}
+*{box-sizing:border-box}
+/* Layout: one-screen app — sky-to-grass backdrop, a raised soil bed holds the puzzle grid, big round controls only. Single bright look by design. */
+:root{
+  --sky:#bfe4f2; --sky-low:#e4f4df;
+  --grass:#7fc46b; --grass-deep:#4f9a45; --grass-tuft:#62ad54;
+  --soil:#d9a56b; --soil-deep:#a8723f;
+  --hose:#f6bd34; --hose-edge:#b57c12;
+  --water:#3fa4ea; --water-edge:#1f6fb3;
+  --tap:#e5533d; --tap-dark:#a8321f;
+  --petal:#ff7fac; --petal-2:#ffb3cd; --centre:#ffd23f; --bud:#5fae4f;
+  --rock:#a2abb0; --rock-dark:#7d878d;
+  --cube:#ffc93d; --cube-edge:#c98f10;
+  --ink:#2c3a22; --card:#fffdf4;
+  --display:"Baloo 2","Trebuchet MS",system-ui,sans-serif;
+  color-scheme:light;
+}
+html,body{height:100%}
+body{margin:0;background:linear-gradient(var(--sky) 0%,var(--sky-low) 55%,var(--grass) 55.1%,var(--grass-deep) 100%);color:var(--ink);font-family:var(--display);-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;overflow:hidden;touch-action:manipulation}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
+button:focus-visible{outline:4px solid var(--water-edge);outline-offset:3px;border-radius:16px}
+.app{height:100%;box-sizing:border-box;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px;display:flex;flex-direction:column}
+.screen{flex:1;display:flex;flex-direction:column;align-items:center;min-height:0}
+
+/* Home */
+.top{width:100%;max-width:560px;display:flex;justify-content:space-between;align-items:center}
+h1{font-size:clamp(2.2rem,9vw,3.2rem);font-weight:800;margin:6px 0 0;line-height:1;text-wrap:balance;color:var(--ink);letter-spacing:-.5px}
+h1 span{color:var(--tap)}
+.sub{margin:6px 0 18px;font-weight:600;font-size:1.05rem;opacity:.8}
+.round{width:52px;height:52px;border-radius:50%;background:var(--card);box-shadow:0 4px 0 rgba(0,0,0,.15);display:grid;place-items:center;flex:none}
+.round:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.15)}
+.round svg{width:28px;height:28px}
+.plots{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;width:100%;max-width:560px}
+.plot{background:var(--soil);border-radius:20px;box-shadow:inset 0 -6px 0 var(--soil-deep),0 4px 0 rgba(0,0,0,.12);aspect-ratio:3/4;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding-bottom:12px;position:relative}
+.plot:active{transform:translateY(3px)}
+.plot.next{animation:hop 1.4s ease-in-out infinite}
+.plot .badge{position:absolute;top:6px;width:30px;height:30px}
+.foot{margin-top:auto;padding-top:14px;font-weight:600;opacity:.75;font-size:.95rem;text-align:center;color:#fff}
+
+/* number tower */
+.tower{display:flex;flex-direction:column-reverse;gap:2px;align-items:center}
+.cube{width:18px;height:11px;background:var(--cube);border-radius:3px;box-shadow:inset 0 -2px 0 var(--cube-edge)}
+.cube.face{height:14px;position:relative}
+.cube.face::before,.cube.face::after{content:"";position:absolute;top:4px;width:3px;height:4px;border-radius:2px;background:var(--ink)}
+.cube.face::before{left:5px}.cube.face::after{right:5px}
+
+/* Game */
+.bar{width:100%;max-width:560px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.bar .tower{flex-direction:row;gap:2px}
+.bar .cube{width:13px;height:18px}
+.bar .cube.face{height:18px}
+.bed{margin:auto 0;padding:10px;background:var(--grass-deep);border-radius:24px;box-shadow:inset 0 0 0 6px var(--soil-deep),0 8px 0 rgba(0,0,0,.18)}
+.board{display:grid}
+.tile{display:block;width:100%;height:100%;position:relative}
+.tile svg{width:100%;height:100%;display:block;overflow:visible}
+.pipe{transform-box:view-box;transform-origin:50% 50%;transition:transform .28s cubic-bezier(.3,1.5,.55,1)}
+.edge line{stroke:var(--hose-edge);stroke-width:34}
+.edge circle{fill:var(--hose-edge)}
+.inner line{stroke:var(--hose);stroke-width:22;transition:stroke .35s}
+.inner circle{fill:var(--hose);transition:fill .35s}
+.wet .inner line,.always .inner line{stroke:var(--water)}
+.wet .inner circle,.always .inner circle{fill:var(--water)}
+.wet .edge line{stroke:var(--water-edge)} .wet .edge circle{fill:var(--water-edge)}
+.patch{fill:var(--soil)}
+.petals{transform-box:view-box;transform-origin:50px 40px;transform:scale(0);transition:transform .45s cubic-bezier(.3,1.8,.5,1)}
+.wet .petals{transform:scale(1)}
+.centre{fill:var(--bud);transition:fill .35s}
+.wet .centre{fill:var(--centre)}
+.wet .flowerwrap{animation:sway 2.4s ease-in-out infinite;transform-box:view-box;transform-origin:50px 90px}
+.nudge .pipe{animation:wiggle .9s ease-in-out 2}
+.bump{animation:bump .3s}
+
+/* Win */
+.win{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;background:rgba(255,253,244,.72);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);z-index:20}
+.win .big{width:min(52vw,220px);animation:pop .6s cubic-bezier(.3,1.8,.5,1)}
+.win .row{display:flex;gap:20px;align-items:center}
+.go{width:96px;height:96px;border-radius:50%;background:var(--grass-deep);box-shadow:0 6px 0 #2f6b29;display:grid;place-items:center;animation:hop 1.2s ease-in-out infinite}
+.go svg{width:52px;height:52px}
+.fall{position:fixed;top:-30px;width:16px;height:22px;border-radius:50% 50% 50% 0;background:var(--petal);z-index:21;pointer-events:none;animation:fall linear forwards}
+.fall:nth-child(odd){background:var(--petal-2)}
+
+@keyframes hop{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes wiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-10deg)}75%{transform:rotate(10deg)}}
+@keyframes bump{50%{transform:translateX(-4px)}}
+@keyframes pop{from{transform:scale(.2)}to{transform:scale(1)}}
+@keyframes sway{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition-duration:.01ms!important}}
