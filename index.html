@@ -26,14 +26,23 @@
       <h1>Puzzle <span>Garden</span></h1>
       <button class="round" id="mute" aria-label="Sound on or off"></button>
     </div>
-    <p class="sub">Turn the pipes. Water the flowers.</p>
-    <div class="plots" id="plots"></div>
+    <p class="sub">Turn the pipes, then press the tap.</p>
+    <div class="worlds" id="worlds"></div>
     <p class="foot">No ads. No timers. Just tap.</p>
+  </section>
+
+  <section class="screen" id="levels" hidden>
+    <div class="bar">
+      <button class="round" id="levelsBack" aria-label="Back to worlds"></button>
+      <h2 id="worldName"></h2>
+      <span class="spacer"></span>
+    </div>
+    <div class="plots" id="plots"></div>
   </section>
 
   <section class="screen" id="game" hidden>
     <div class="bar">
-      <button class="round" id="homeBtn" aria-label="Back to garden"></button>
+      <button class="round" id="homeBtn" aria-label="Back to levels"></button>
       <div class="tower" id="lvlTower" aria-hidden="true"></div>
       <button class="round" id="resetBtn" aria-label="Start this level again"></button>
     </div>

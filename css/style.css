@@ -12,6 +12,7 @@
   --petal:#ff7fac; --petal-2:#ffb3cd; --centre:#ffd23f; --bud:#5fae4f;
   --rock:#a2abb0; --rock-dark:#7d878d;
   --cube:#ffc93d; --cube-edge:#c98f10;
+  --metal:#c3ccd2; --metal-edge:#6f7c86; --bolt:#55616a;
   --ink:#2c3a22; --card:#fffdf4;
   --display:"Baloo 2","Trebuchet MS",system-ui,sans-serif;
   color-scheme:light;
@@ -22,7 +23,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;paddin
 button:focus-visible{outline:4px solid var(--water-edge);outline-offset:3px;border-radius:16px}
 .app{height:100%;box-sizing:border-box;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px;display:flex;flex-direction:column}
 .screen{flex:1;display:flex;flex-direction:column;align-items:center;min-height:0}
-#home{overflow-y:auto;-webkit-overflow-scrolling:touch}
+#home,#levels{overflow-y:auto;-webkit-overflow-scrolling:touch}
 
 /* Home */
 .top{width:100%;max-width:560px;display:flex;justify-content:space-between;align-items:center}
@@ -50,7 +51,7 @@ h1 span{color:var(--tap)}
 /* Game */
 .bar{width:100%;max-width:560px;display:flex;justify-content:space-between;align-items:center;gap:12px}
 .bed{margin:auto 0;padding:10px;background:var(--grass-deep);border-radius:24px;box-shadow:inset 0 0 0 6px var(--soil-deep),0 8px 0 rgba(0,0,0,.18)}
-.board{display:grid}
+.board{display:grid;position:relative}
 .tile{display:block;width:100%;height:100%;position:relative}
 .tile svg{width:100%;height:100%;display:block;overflow:visible}
 .pipe{transform-box:view-box;transform-origin:50% 50%;transition:transform .28s cubic-bezier(.3,1.5,.55,1)}
@@ -86,3 +87,45 @@ h1 span{color:var(--tap)}
 @keyframes sway{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
 @keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition-duration:.01ms!important}}
+
+/* World map */
+.worlds{display:flex;flex-direction:column;gap:12px;width:100%;max-width:560px}
+.world{display:flex;align-items:center;gap:14px;background:var(--card);border-radius:22px;padding:10px 14px 10px 10px;box-shadow:0 5px 0 rgba(0,0,0,.14);position:relative;text-align:left}
+.world:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.14)}
+.world .art{width:84px;height:68px;flex:none;background:var(--sky-low);border-radius:16px;display:grid;place-items:center}
+.world .art svg{width:76px;height:60px}
+.winfo{display:flex;flex-direction:column;gap:6px;min-width:0}
+.winfo strong{font-size:1.3rem;line-height:1.1}
+.dots{display:flex;flex-wrap:wrap;gap:3px;max-width:190px}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--soil);opacity:.45}
+.dots i.on{background:var(--petal);opacity:1}
+.soon{font-size:.85rem;font-weight:600;opacity:.7}
+.world.locked{filter:grayscale(.85);opacity:.7}
+.world .lock{position:absolute;right:14px;top:50%;transform:translateY(-50%);width:28px;height:28px}
+.world .lock svg{width:28px;height:28px}
+h2{margin:0;font-size:1.5rem;font-weight:800;text-align:center;flex:1}
+.spacer{width:52px;flex:none}
+#levels .plots{margin-top:18px}
+
+/* Stuck metal pipes */
+.fixed .edge line{stroke:var(--metal-edge)} .fixed .edge circle{fill:var(--metal-edge)}
+.fixed .inner line{stroke:var(--metal)} .fixed .inner circle{fill:var(--metal)}
+.bolt{fill:var(--bolt)}
+.fixed.wet .inner line{stroke:var(--water)} .fixed.wet .inner circle{fill:var(--water)}
+.fixed.wet .edge line{stroke:var(--metal-edge)} .fixed.wet .edge circle{fill:var(--metal-edge)}
+
+/* The tap: pulses to invite a press, wheel spins while running */
+.tap .inner line{stroke:var(--hose)}
+.tap.on .inner line{stroke:var(--water)}
+.tap.pulse svg{animation:pulse 1.1s ease-in-out infinite}
+.tap .wheel{transform-box:view-box;transform-origin:50px 44px;transition:transform .5s}
+.tap.on .wheel{transform:rotate(180deg)}
+
+/* Leak splash */
+.splash{position:absolute;width:0;height:0;pointer-events:none;z-index:3}
+.splash i{position:absolute;left:-6px;top:-6px;width:12px;height:12px;border-radius:50% 50% 50% 0;background:var(--water);animation:drop .7s ease-out forwards}
+.splash::before{content:"";position:absolute;left:-18px;top:-18px;width:36px;height:36px;border-radius:50%;background:var(--water);opacity:.35;animation:puddle .9s ease-out forwards}
+
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+@keyframes drop{0%{transform:translate(0,0) scale(.4);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(1);opacity:0}}
+@keyframes puddle{0%{transform:scale(.2);opacity:.6}100%{transform:scale(1.4);opacity:0}}

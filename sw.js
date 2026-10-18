@@ -1,7 +1,7 @@
 /* Service worker: saves the game's files on the device so it works offline.
    IMPORTANT: change CACHE (e.g. v2, v3...) every time you update any file,
    otherwise phones keep showing the old version. */
-const CACHE = "puzzle-garden-v2";
+const CACHE = "puzzle-garden-v3";
 const FILES = [
   "./", "index.html", "css/style.css", "js/levels.js", "js/game.js",
   "manifest.json", "icons/icon-180.png", "icons/icon-192.png", "icons/icon-512.png"
