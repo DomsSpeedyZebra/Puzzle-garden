@@ -34,7 +34,16 @@ function paintMute(){$("mute").innerHTML=muted?ICON.off:ICON.on}
 paintMute();
 $("mute").onclick=()=>{muted=!muted;store.set("pg_muted",muted);paintMute();tone(660)};
 
-function tower(n){let h="";for(let i=0;i<n;i++)h+=`<div class="cube${i===n-1?" face":""}"></div>`;return h}
+/* Draw n as stacks of up to 5 blocks side by side (e.g. 12 = 5 + 5 + 2). The top block gets a face. */
+function tower(n){
+  let h="";
+  for(let start=0;start<n;start+=5){
+    h+='<div class="stack">';
+    for(let i=start;i<Math.min(start+5,n);i++)h+=`<div class="cube${i===n-1?" face":""}"></div>`;
+    h+="</div>";
+  }
+  return h;
+}
 
 /* ---------- Home screen ---------- */
 function showHome(){
