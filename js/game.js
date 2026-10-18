@@ -530,6 +530,15 @@ $("levelsBack").onclick=()=>{tone(440);showWorlds()};
 $("resetBtn").onclick=()=>{if(testing)return;tone(400);startLevel(W,L,Date.now()%1000)};
 window.addEventListener("resize",()=>{if(!$("game").hidden&&!testing)buildBoard()});
 
+/* ---------- Stop iPhone zooming ----------
+   Safari ignores most "don't zoom" settings, so we also block it here:
+   pinch gestures, quick double-taps, and page scrolling while dragging a piece. */
+["gesturestart","gesturechange","gestureend"].forEach(ev=>document.addEventListener(ev,e=>e.preventDefault(),{passive:false}));
+let lastTouchEnd=0;
+document.addEventListener("touchend",e=>{const now=Date.now();if(now-lastTouchEnd<400)e.preventDefault();lastTouchEnd=now},{passive:false});
+document.addEventListener("touchmove",e=>{if(drag||e.touches.length>1)e.preventDefault()},{passive:false});
+document.addEventListener("dblclick",e=>e.preventDefault(),{passive:false});
+
 /* ---------- Offline + automatic updates ----------
    The service worker keeps a copy for offline play. When a new version is published,
    the game reloads itself — straight away on the menus, or as soon as he leaves the level he's playing. */
