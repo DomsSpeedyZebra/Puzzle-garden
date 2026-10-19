@@ -182,3 +182,7 @@ h2{margin:0;font-size:1.5rem;font-weight:800;text-align:center;flex:1}
 html,body,button,.tile,.piece,.plot,.world{touch-action:manipulation}
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 *{-webkit-touch-callout:none}
+
+/* Link to other games on the home screen */
+a.world{text-decoration:none;color:inherit}
+.sub.more{margin:20px 0 10px}

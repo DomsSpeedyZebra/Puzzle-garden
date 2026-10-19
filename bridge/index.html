@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Bridge Builders</title>
+<meta name="description" content="Build a bridge, pick a car, and see if it holds. No ads, no timers.">
+<link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#4f9a45">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Puzzle Garden">
+<link rel="apple-touch-icon" href="../icons/icon-180.png">
+<link rel="icon" href="../icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="bridge.css">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box}</style>
+</head>
+<body>
+<div class="app">
+  <!-- Level picker -->
+  <section class="screen" id="levels">
+    <div class="bar">
+      <a class="round" id="homeLink" href="../" aria-label="Back to Puzzle Garden"></a>
+      <h2>Bridge Builders</h2>
+      <button class="round" id="mute" aria-label="Sound on or off"></button>
+    </div>
+    <p class="sub">Build it. Pick a car. Will it hold?</p>
+    <div class="plots" id="plots"></div>
+  </section>
+
+  <!-- Building and testing -->
+  <section class="screen" id="game" hidden>
+    <div class="bar">
+      <button class="round" id="backBtn" aria-label="Back to levels"></button>
+      <div class="tower" id="lvlTower" aria-hidden="true"></div>
+      <div class="barRight">
+        <button class="round" id="undoBtn" aria-label="Undo"></button>
+        <button class="round" id="clearBtn" aria-label="Start again"></button>
+      </div>
+    </div>
+    <div class="stage" id="stage"><canvas id="view"></canvas></div>
+    <div class="panel">
+      <div class="row">
+        <button class="tool sel" id="toolRoad" aria-label="Road: the car drives on it"></button>
+        <button class="tool" id="toolStick" aria-label="Stick: holds the road up"></button>
+        <div class="left" aria-label="Pieces left"><div class="tower" id="leftTower"></div></div>
+      </div>
+      <div class="row">
+        <div class="cars" id="cars"></div>
+        <button class="play" id="playBtn" aria-label="Drive!"></button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="win" id="win" hidden>
+  <svg class="big" viewBox="0 0 100 100" aria-hidden="true">
+    <path d="M30 92V12" stroke="#6b4f35" stroke-width="6" stroke-linecap="round"/>
+    <path d="M33 14h50l-12 16 12 16H33z" fill="#e5533d"/>
+    <path d="M33 14h50l-12 16 12 16H33z" fill="none" stroke="#a8321f" stroke-width="3" stroke-linejoin="round"/>
+    <circle cx="52" cy="30" r="7" fill="#fff"/>
+  </svg>
+  <canvas id="winCar" width="240" height="140"></canvas>
+  <div class="row">
+    <button class="round" id="winBack" aria-label="Back to levels"></button>
+    <button class="go" id="nextBtn" aria-label="Next level"><svg viewBox="0 0 24 24"><path d="M5 12h12M12 6l6 6-6 6" stroke="#fff" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  </div>
+</div>
+
+<script src="physics.js"></script>
+<script src="levels.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
