@@ -1,0 +1,81 @@
+/* BOUNCER — looks. Dark retro arcade style, separate from Puzzle Garden's garden theme. */
+:root { --bg: #05070d; --panel: #111827; --edge: #2a3654; --ink: #e6ecff; --dim: #8b9ab8;
+        --fire: #e5413b; --good: #2fbf4a; --bad: #e0412f; --glow: #7fd0ff; }
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink);
+  font-family: "Trebuchet MS", system-ui, -apple-system, sans-serif;
+  overscroll-behavior: none; -webkit-user-select: none; user-select: none;
+  -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+button { font: inherit; color: inherit; cursor: pointer; }
+
+/* Full-screen column: playfield on top, controls underneath */
+#app { position: fixed; inset: 0; display: flex; flex-direction: column; touch-action: none;
+  padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0); }
+#stage { flex: 1; position: relative; min-height: 0; }
+#view { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+#pauseBtn { position: absolute; top: 4px; right: 6px; width: 34px; height: 30px; border: 0; border-radius: 8px;
+  background: rgba(255,255,255,.08); display: flex; align-items: center; justify-content: center; gap: 5px; }
+#pauseBtn i { width: 4px; height: 14px; background: var(--ink); border-radius: 2px; opacity: .8; }
+
+/* ---- Controls ---- */
+#pad { flex: none; height: clamp(110px, 21vh, 190px); display: flex; gap: 10px; padding: 8px 10px 10px; }
+#pad.fire-left { flex-direction: row-reverse; }
+#slider { flex: 2.7; position: relative; border-radius: 18px; overflow: hidden; touch-action: none;
+  background: linear-gradient(#192136, #0c111d); border: 2px solid var(--edge);
+  box-shadow: inset 0 3px 12px rgba(0,0,0,.6); }
+#slider .grip { position: absolute; inset: 0;
+  background: repeating-linear-gradient(90deg, transparent 0 16px, rgba(255,255,255,.045) 16px 18px); }
+#slider span { position: absolute; left: 0; right: 0; bottom: 8px; text-align: center; font-size: 12px;
+  letter-spacing: 5px; color: var(--dim); opacity: .6; pointer-events: none; }
+#touchDot { position: absolute; width: 56px; height: 56px; margin: -28px 0 0 -28px; border-radius: 50%;
+  background: radial-gradient(rgba(127,208,255,.45), rgba(127,208,255,0) 70%); opacity: 0;
+  transition: opacity .15s; pointer-events: none; }
+#touchDot.on { opacity: 1; }
+
+#fire { flex: 1; min-width: 84px; border: 0; border-radius: 22px; touch-action: none;
+  background: radial-gradient(circle at 40% 30%, #ff7b6b, #c42a22 60%, #7d1712);
+  box-shadow: 0 5px 0 #4d0e0b, inset 0 2px 0 rgba(255,255,255,.35); }
+#fire b { font-size: 15px; letter-spacing: 2px; text-shadow: 0 1px 2px rgba(0,0,0,.5); }
+#fire:active, #fire.down { transform: translateY(3px); box-shadow: 0 2px 0 #4d0e0b, inset 0 2px 0 rgba(255,255,255,.35); }
+#fire.armed { background: radial-gradient(circle at 40% 30%, #fff38a, #f0a81c 55%, #a1580b);
+  box-shadow: 0 5px 0 #5b3205, 0 0 18px rgba(255,200,60,.55), inset 0 2px 0 rgba(255,255,255,.4); }
+#fire.launch { background: radial-gradient(circle at 40% 30%, #8fe3ff, #2a8fd6 60%, #164f80);
+  box-shadow: 0 5px 0 #0c2f4e, inset 0 2px 0 rgba(255,255,255,.35); }
+
+/* ---- Menus ---- */
+.overlay { position: fixed; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center;
+  justify-content: flex-start; gap: 14px; padding: calc(24px + env(safe-area-inset-top, 0)) 18px 30px;
+  background: rgba(3,5,12,.9); overflow-y: auto; touch-action: pan-y; -webkit-overflow-scrolling: touch; }
+.overlay[hidden] { display: none; }
+.back { align-self: flex-start; color: var(--dim); text-decoration: none; font-size: 15px; }
+.logo { margin: 6px 0 0; font-size: clamp(46px, 15vw, 76px); letter-spacing: 4px; font-weight: 900; line-height: 1;
+  background: linear-gradient(#ffffff 0%, #c8d3e6 45%, #5d6b86 50%, #e7edf8 70%, #9aa8c2 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 3px 0 #1d2a4a) drop-shadow(0 0 14px rgba(127,208,255,.35)); }
+h2 { margin: 30px 0 4px; font-size: 38px; letter-spacing: 3px; }
+.tag { margin: 0; color: var(--dim); }
+.btns { display: flex; flex-direction: column; gap: 12px; width: min(320px, 100%); }
+.big { border: 0; border-radius: 16px; padding: 16px; font-size: 22px; font-weight: 800; letter-spacing: 2px;
+  background: linear-gradient(#3d8cff, #1f5fd0); box-shadow: 0 5px 0 #133b85; }
+.big:active { transform: translateY(3px); box-shadow: 0 2px 0 #133b85; }
+.big.ez { background: linear-gradient(#45d86a, #22a447); box-shadow: 0 5px 0 #146b2c; }
+.big.dim { background: linear-gradient(#3a4560, #273049); box-shadow: 0 5px 0 #161c2c; }
+.big small { display: block; font-size: 13px; font-weight: 600; letter-spacing: 1px; opacity: .85; }
+.startAt { display: flex; align-items: center; gap: 12px; color: var(--dim); }
+.startAt button { width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--edge); background: var(--panel); font-size: 20px; }
+.startAt span { min-width: 26px; text-align: center; font-size: 20px; color: var(--ink); font-weight: 800; }
+.scores { color: var(--dim); font-size: 14px; text-align: center; }
+.opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: min(340px, 100%); }
+.opts button { border: 1px solid var(--edge); background: var(--panel); border-radius: 12px; padding: 10px 6px; font-size: 13px; }
+.legend { width: min(340px, 100%); font-size: 13px; color: var(--dim); }
+.legend p { margin: 6px 0; text-align: center; }
+.legend ul { list-style: none; padding: 0; margin: 8px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; }
+.legend li { display: flex; align-items: center; gap: 8px; }
+.legend em { font-style: normal; font-weight: 800; color: #fff; width: 30px; height: 16px; border-radius: 8px;
+  display: inline-flex; align-items: center; justify-content: center; font-size: 11px; flex: none; }
+em.g, .legend em.g { background: var(--good); } em.r, .legend em.r { background: var(--bad); }
+span.g { color: var(--good); font-weight: 700; } span.r { color: var(--bad); font-weight: 700; }
+.final { font-size: 26px; margin: 0; font-weight: 800; }
+.best { margin: 0; color: var(--dim); }
+.best.new { color: #ffd34d; font-weight: 800; }

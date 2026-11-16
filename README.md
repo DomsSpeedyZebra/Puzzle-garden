@@ -18,6 +18,7 @@ On iPhone: open in Safari → Share → **Add to Home Screen**.
 | `sw.js` | Saves files on the device so it works offline |
 | `icons/` | Home-screen icons |
 | `bridge/` | **Bridge Builders**: `physics.js` (the truss simulation), `levels.js`, `game.js` |
+| `bouncer/` | **Bouncer**: `levels.js` (brick layouts), `sound.js` (effects + music made in code), `game.js` |
 
 ## Adding a level
 
@@ -71,3 +72,16 @@ Pieces glow yellow → red as they take strain and snap past their limit.
 Levels live in `bridge/levels.js` (comments explain each field). Strength and weight numbers are at the
 top of `bridge/physics.js`. Each level has been checked so that a sensible answer gets the goal car
 across within the piece limit, and a flat road on its own does not.
+
+## Bouncer
+
+A retro brick-breaker for grown-ups (with an EZ mode for Elliot), linked from the home screen.
+Slide the bar at the bottom like a trackpad to move the bouncer; tap it or press the button to launch.
+Hold FIRE when the shooter is on. The fire button can go on either side (menu or pause screen).
+
+- **Normal:** 3 lives, the ball speeds up, red capsules can drop.
+- **EZ:** slower ball, wider bouncer, a safety net at the bottom so the ball never gets lost, only green capsules.
+
+Levels live in `bouncer/levels.js` (a 12-wide letter grid; the key is at the top of the file).
+Mode settings (speed, bouncer size, drop rate) are in the `MODES` block near the top of `bouncer/game.js`.
+After the last level it loops back to level 1, 10% faster each time.
