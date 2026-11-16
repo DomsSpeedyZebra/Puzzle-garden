@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Bouncer</title>
+<meta name="description" content="A retro brick-breaker. Slide, launch, smash.">
+<link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#05070d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Puzzle Garden">
+<link rel="apple-touch-icon" href="../icons/icon-180.png">
+<link rel="icon" href="../icons/icon-192.png">
+<link rel="stylesheet" href="bouncer.css">
+</head>
+<body>
+<div id="app">
+  <!-- The playfield. Everything in it is drawn by game.js -->
+  <div id="stage">
+    <canvas id="view"></canvas>
+    <button id="pauseBtn" aria-label="Pause"><i></i><i></i></button>
+  </div>
+
+  <!-- The controls: a slide area that works like a laptop trackpad, and a fire button.
+       The "fire-left" class swaps their sides. -->
+  <div id="pad">
+    <div id="slider" aria-label="Slide here to move the bouncer">
+      <div class="grip"></div>
+      <div id="touchDot"></div>
+      <span>SLIDE</span>
+    </div>
+    <button id="fire" aria-label="Fire or launch"><b id="fireLabel">LAUNCH</b></button>
+  </div>
+</div>
+
+<!-- Title screen -->
+<div class="overlay" id="menu">
+  <a class="back" href="../">&lsaquo; Puzzle Garden</a>
+  <h1 class="logo">BOUNCER</h1>
+  <p class="tag">Slide. Launch. Smash every brick.</p>
+  <div class="btns">
+    <button class="big" id="playNormal">PLAY</button>
+    <button class="big ez" id="playEz">EZ MODE<small>for Elliot</small></button>
+  </div>
+  <div class="startAt">Start at level
+    <button id="lvDown" aria-label="Earlier level">&minus;</button>
+    <span id="lvNum">1</span>
+    <button id="lvUp" aria-label="Later level">+</button>
+  </div>
+  <div class="scores" id="scores"></div>
+  <div class="opts">
+    <button data-opt="side"></button>
+    <button data-opt="sens"></button>
+    <button data-opt="music"></button>
+    <button data-opt="sfx"></button>
+  </div>
+  <div class="legend">
+    <p>Catch the capsules. <span class="g">Green</span> helps, <span class="r">red</span> hurts.</p>
+    <ul>
+      <li><em class="g">E</em>Bigger bouncer</li>
+      <li><em class="g">M</em>Multi-ball</li>
+      <li><em class="g">F</em>Fireball</li>
+      <li><em class="g">L</em>Shooter (hold FIRE)</li>
+      <li><em class="g">C</em>Catch</li>
+      <li><em class="g">S</em>Slow ball</li>
+      <li><em class="g">+</em>Extra life</li>
+      <li><em class="g">B</em>Detonate</li>
+      <li><em class="g">W</em>Warp to next level</li>
+      <li><em class="r">&minus;</em>Shrink</li>
+      <li><em class="r">!</em>Fast ball</li>
+      <li><em class="r">X</em>Lose a life</li>
+    </ul>
+    <p>Bricks: grey steel takes 2 hits, dark titanium 3, gold never breaks, red hazard bricks explode.</p>
+  </div>
+</div>
+
+<!-- Pause screen -->
+<div class="overlay" id="pauseMenu" hidden>
+  <h2>PAUSED</h2>
+  <div class="btns">
+    <button class="big" id="resumeBtn">RESUME</button>
+    <button class="big dim" id="quitBtn">QUIT TO MENU</button>
+  </div>
+  <div class="opts">
+    <button data-opt="side"></button>
+    <button data-opt="sens"></button>
+    <button data-opt="music"></button>
+    <button data-opt="sfx"></button>
+  </div>
+</div>
+
+<!-- Game over screen -->
+<div class="overlay" id="overMenu" hidden>
+  <h2>GAME OVER</h2>
+  <p class="final" id="finalScore"></p>
+  <p class="best" id="finalBest"></p>
+  <div class="btns">
+    <button class="big" id="againBtn">PLAY AGAIN</button>
+    <button class="big dim" id="menuBtn">MENU</button>
+  </div>
+</div>
+
+<script src="levels.js"></script>
+<script src="sound.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
