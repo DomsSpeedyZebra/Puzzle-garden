@@ -117,3 +117,13 @@ button:disabled { opacity: .38; cursor: default; }
 .nrow.mq .mk { color: #b07a10; background: #f6e3a8; }
 .nrow.my .mk { color: #fff; background: #2f8f46; }
 .log p { margin: 6px 0; line-height: 1.35; }
+
+/* ---- Computer players ---- */
+.typeBtn { border: 1px solid #5b3d27; background: var(--wood2); border-radius: 10px; padding: 8px 8px; font-size: 13px; white-space: nowrap; flex: none; }
+.typeBtn.easy { background: #2f4a36; border-color: #4f7a5a; }
+.typeBtn.sharp { background: #5a2a26; border-color: #8f4038; }
+.botname { font-size: 18px; padding: 4px 0; }
+.seat.isbot .botname { color: var(--dim); }
+#panel.bot .acts:not(.small) { display: none; }
+#panel.bot #endBtn { display: none; }
+#panel.bot #status { font-style: italic; color: var(--gold); min-height: 4em; }

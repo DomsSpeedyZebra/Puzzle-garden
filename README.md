@@ -18,7 +18,7 @@ On iPhone: open in Safari → Share → **Add to Home Screen**.
 | `sw.js` | Saves files on the device so it works offline |
 | `icons/` | Home-screen icons |
 | `bridge/` | **Bridge Builders**: `physics.js` (the truss simulation), `levels.js`, `game.js` |
-| `manor/` | **Murder at Muddlecombe Manor**: `data.js` (suspects, weapons, rooms, board layout), `game.js` |
+| `manor/` | **Murder at Muddlecombe Manor**: `data.js` (suspects, weapons, rooms, board layout), `game.js`, `bots.js` (computer players) |
 | `bouncer/` | **Bouncer**: `levels.js` (brick layouts), `sound.js` (effects + music made in code), `game.js` |
 
 ## Adding a level
@@ -94,4 +94,9 @@ roll, move into rooms, make suggestions (the next player who can must secretly s
 The phone shows a "pass to…" screen whenever it needs to change hands, so cards stay private.
 Each player has an auto-filling notebook. The game saves after every step, so it can be closed and continued.
 
-Characters, weapons, rooms and the board layout are all in `manor/data.js`. Computer players are planned next.
+Any seat can be a computer player (`manor/bots.js`):
+- **Easy** learns only from its own cards, the cards it's shown and who couldn't help it, and sometimes gambles on an early accusation.
+- **Sharp** also deduces from everything at the table (who couldn't help anyone, who showed someone a card, hand sizes) and only accuses when certain.
+In testing, Sharp beat Easy about 4 games in 5 and never made a wrong accusation. With one human at the table the "pass the phone" screens are skipped.
+
+Characters, weapons, rooms and the board layout are all in `manor/data.js`.

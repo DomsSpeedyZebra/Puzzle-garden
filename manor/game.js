@@ -52,11 +52,19 @@ const nameOf = p => G.players[p].name;
 const charOf = p => SUSPECTS[G.players[p].ch];
 const playerFor = s => G.players.findIndex(p => p.ch === s);   // which player is this suspect (-1 = nobody)
 const posRoom = s => G.pos[s].room;                           // room number, or undefined in a corridor
+const isBot = p => !!G.players[p].bot;
+const humans = () => G.players.filter(p => !p.bot).length;
+// Whose cards and notebook can be shown right now: the current player if they're
+// human, or the only human at the table while the computer players take their turns
+function viewer() {
+  if (!me().bot) return G.turn;
+  return humans() === 1 ? G.players.findIndex(p => !p.bot) : -1;
+}
 
 function newGame(seats) {
   const sol = { s: Math.floor(Math.random() * 6), w: Math.floor(Math.random() * 6), r: Math.floor(Math.random() * 9) };
   const rest = shuffle(ALL_CARDS.filter(id => id !== "s" + sol.s && id !== "w" + sol.w && id !== "r" + sol.r));
-  const players = seats.map(s => ({ name: s.name, ch: s.ch, hand: [], out: false, notes: {}, seen: {}, summoned: false }));
+  const players = seats.map(s => ({ name: s.name, ch: s.ch, bot: s.bot || null, hand: [], out: false, notes: {}, seen: {}, summoned: false }));
   rest.forEach((id, i) => players[i % players.length].hand.push(id));      // deal round the table
   players.forEach(p => p.hand.forEach(id => p.notes[id] = "x"));           // your own cards are crossed off
   const rooms = shuffle(ROOMS.map((_, i) => i));
@@ -67,6 +75,7 @@ function newGame(seats) {
     turn: 0, phase: "pass", t: freshTurn(0, true), sugg: null, log: [], winner: null, accuse: null
   };
   G.log.push("The body has been found. Nobody leaves Muddlecombe Manor until it's solved.");
+  G.players.forEach((p, i) => { if (p.bot) BOT.init(i); });              // computer players start their notebooks
   save(); render();
 }
 
@@ -120,7 +129,7 @@ function moveTo(target) {          // target = {r,c} or {room}
     G.t.entered = true;
     G.log.push(nameOf(G.turn) + " went into the " + ROOMS[target.room].name + ".");
     save(); render();
-    openSuggest();                 // straight into a suggestion
+    if (!me().bot) openSuggest();  // humans go straight into a suggestion
     return;
   }
   save(); render();
@@ -152,14 +161,20 @@ function makeSuggestion(s, w) {
   // Go round the table from the next player; the first one holding any of the three must show one
   const want = ["s" + s, "w" + w, "r" + r];
   let ref = -1;
+  const noHelp = [];
   for (let k = 1; k < G.players.length; k++) {
     const p = (G.turn + k) % G.players.length;
     if (G.players[p].hand.some(id => want.includes(id))) { ref = p; break; }
+    noHelp.push(p);
     G.log.push("  " + nameOf(p) + " couldn't help.");
   }
-  G.sugg = { by: G.turn, s, w, r, want, ref, shown: null };
-  if (ref < 0) { G.log.push("  Nobody could show a card!"); G.phase = "shown"; }
-  else G.phase = "passRefute";
+  G.sugg = { by: G.turn, s, w, r, want, ref, noHelp, shown: null };
+  if (ref < 0) { G.log.push("  Nobody could show a card!"); finishSuggestion(); return; }
+  if (isBot(ref)) {                                    // a computer player picks its own card to show
+    showCard(BOT.chooseRefute(ref, G.turn, G.players[ref].hand.filter(id => want.includes(id))));
+    return;
+  }
+  G.phase = "passRefute";
   save(); render();
 }
 
@@ -169,7 +184,19 @@ function showCard(id) {
   const by = G.players[G.sugg.by];
   by.seen[id] = G.sugg.ref;                    // remembered for the notebook
   if (!by.notes[id]) by.notes[id] = "x";
-  G.phase = "passBack";
+  finishSuggestion();
+}
+
+// Tell the computer players what they saw, then decide where the phone goes next
+function finishSuggestion() {
+  const sg = G.sugg;
+  G.players.forEach((p, i) => { if (p.bot) BOT.observe(i, { by: sg.by, want: sg.want, noHelp: sg.noHelp, ref: sg.ref, shown: sg.shown }); });
+  if (isBot(sg.by)) {                          // a computer suggested: it carries on with its turn
+    G.t.botMsg = nameOf(sg.by) + " suggested " + suggText(sg) + ". " + (sg.ref < 0 ? "Nobody could show a card!" : nameOf(sg.ref) + " showed them a card.");
+    nextDelay = 2600;                          // give people time to read it
+    G.sugg = null; G.phase = "turn";
+  } else if (sg.ref >= 0 && !isBot(sg.ref)) G.phase = "passBack";   // a human showed a human
+  else G.phase = "shown";
   save(); render();
 }
 
@@ -181,8 +208,9 @@ function accuse(s, w, r) {
   G.log.push(nameOf(G.turn) + " accused " + SUSPECTS[s].name + " with the " + WEAPONS[w].name + " in the " + ROOMS[r].name + (ok ? " ... and was RIGHT!" : " ... and was wrong. They're out."));
   if (ok) { G.winner = G.turn; G.phase = "over"; }
   else me().out = true;
+  if (me().bot) G.t.botMsg = nameOf(G.turn) + " accused " + SUSPECTS[s].name + " with the " + WEAPONS[w].name + " in the " + ROOMS[r].name + (ok ? "... and was right!" : "... and was wrong! They're out.");
   save(); render();
-  if (!ok) showModal(wrongHtml(), [["I'll keep quiet", () => { closeModal(); endTurn(); }]], true);
+  if (!ok && !me().bot) showModal(wrongHtml(), [["I'll keep quiet", () => { closeModal(); endTurn(); }]], true);
 }
 
 /* ---------- 7. Turns ---------- */
@@ -199,6 +227,54 @@ function endTurn() {
   save(); render();
 }
 
+
+/* ---------- 8. Computer players' turns ----------
+   A bot does one step at a time (roll, move, suggest, accuse, end turn) with a
+   pause between each, so everyone can watch. bots.js does the thinking. */
+let botTimer = null, nextDelay = 0;
+const BOT_DELAY = 950;
+function scheduleBot() {
+  if (botTimer || !G || G.phase !== "turn" || !me().bot || !$("modal").hidden || $("game").hidden) return;
+  botTimer = setTimeout(botStep, nextDelay || BOT_DELAY);
+  nextDelay = 0;
+}
+function say(msg) { G.t.botMsg = msg; save(); render(); }
+function botStep() {
+  botTimer = null;
+  if (!G || G.phase !== "turn" || !me().bot || $("game").hidden) return;
+  const b = G.turn, p = me(), t = G.t;
+  if (t.accused) { endTurn(); return; }
+  const fresh = !t.rolled && !t.moved && !t.suggested;
+  // Sure of the answer (or feeling lucky)? Accuse at the start of the turn or after a suggestion
+  if (fresh || t.suggested) {
+    const a = BOT.decideAccuse(b);
+    if (a) { G.t.botMsg = p.name + " makes an accusation!"; nextDelay = 1800; accuse(a.s, a.w, a.r); return; }
+  }
+  if (fresh) {
+    const room = posRoom(p.ch);
+    if (canSuggest() && BOT.wantsToStay(b, room)) { botSuggest(); return; }
+    if (room !== undefined && ROOMS[room].passage !== undefined && BOT.preferPassage(b, ROOMS[room].passage)) {
+      G.t.botMsg = p.name + " slips through the secret passage to the " + ROOMS[ROOMS[room].passage].name + ".";
+      usePassage(); return;
+    }
+    roll();
+    say(p.name + " rolled " + G.t.rolled + ".");
+    return;
+  }
+  if (t.rolled && !t.moved) {
+    const dest = BOT.chooseMove(b, ui.reach || reachable(p.ch, t.rolled));
+    if (!dest) { t.moved = true; say(p.name + " is boxed in."); return; }
+    G.t.botMsg = dest.room !== undefined ? p.name + " goes into the " + ROOMS[dest.room].name + "." : p.name + " moves along the corridor.";
+    moveTo(dest); return;
+  }
+  if (canSuggest()) { botSuggest(); return; }
+  endTurn();
+}
+function botSuggest() {
+  const c = BOT.chooseSuggestion(G.turn);
+  makeSuggestion(c.s, c.w);
+}
+
 /* =====================================================================
    SCREENS
    ===================================================================== */
@@ -206,6 +282,10 @@ function showScreen(id) { ["title", "setup", "cover", "game"].forEach(s => $(s).
 
 function render() {
   if (!G) { showScreen("title"); $("continueBtn").hidden = true; return; }
+  // No need to hide the screen for computer players, or when there's only one human
+  if (G.phase === "pass" && (me().bot || humans() <= 1)) G.phase = "turn";
+  if (G.phase === "passRefute" && humans() <= 1) G.phase = "refute";
+  if (G.phase === "passBack" && humans() <= 1) G.phase = "shown";
   switch (G.phase) {
     case "pass": cover(G.turn, "It's your turn."); break;
     case "passRefute": cover(G.sugg.ref, esc(nameOf(G.sugg.by)) + " needs to see one of your cards."); break;
@@ -215,6 +295,7 @@ function render() {
     case "over": showScreen("game"); drawGame(); overModal(); break;
     default: showScreen("game"); drawGame();
   }
+  scheduleBot();
 }
 
 function tokenHtml(s, cls) {
@@ -241,7 +322,10 @@ $("cover").addEventListener("click", () => {
 /* ---------- The game screen ---------- */
 function drawGame() {
   const p = me();
-  $("turnInfo").innerHTML = tokenHtml(p.ch, "sm") + "<span>" + esc(p.name) + "</span>";
+  $("turnInfo").innerHTML = tokenHtml(p.ch, "sm") + "<span>" + esc(p.name) + (p.bot ? " 🤖" : "") + "</span>";
+  const botTurn = !!p.bot && G.phase !== "over";
+  $("panel").classList.toggle("bot", botTurn);
+  $("cardsBtn").disabled = $("notesBtn").disabled = viewer() < 0;
   const room = posRoom(p.ch);
   // If the app was closed after rolling but before moving, work the moves out again
   if (G.phase === "turn" && G.t.rolled && !G.t.moved && !G.t.suggested && !ui.reach) ui.reach = reachable(p.ch, G.t.rolled);
@@ -252,6 +336,7 @@ function drawGame() {
   else if (canSuggest()) msg = "You're in the " + ROOMS[room].name + ". Make a suggestion?";
   else if (G.t.rolled && G.t.moved && !G.t.entered && room === undefined && G.t.rolled && !G.t.suggested && !G.t.accused && G.t.boxed) msg = "You're boxed in! End your turn.";
   else msg = "Accuse if you're sure, or end your turn.";
+  if (botTurn) msg = G.t.botMsg || p.name + " is thinking...";
   $("status").textContent = msg;
 
   const die = $("die");
@@ -389,7 +474,7 @@ function showModal(html, buttons, locked) {
   $("modal").hidden = false;
   $("sheet").scrollTop = 0;
 }
-function closeModal() { $("modal").hidden = true; modalLocked = false; }
+function closeModal() { $("modal").hidden = true; modalLocked = false; if (G) scheduleBot(); }
 $("modal").addEventListener("click", e => { if (e.target.id === "modal" && !modalLocked) closeModal(); });
 
 // Card picker used for suggestions and accusations
@@ -468,14 +553,16 @@ function overModal() {
 }
 
 function cardsModal() {
-  const p = me();
+  if (viewer() < 0) return;
+  const p = G.players[viewer()];
   showModal("<h3>Your cards</h3><p class='note'>None of these can be the answer.</p><div class='cards'>" + p.hand.map(id => cardHtml(id)).join("") + "</div>", [["Close", closeModal]]);
 }
 
 // Notebook: tap a row to cycle blank -> ✗ (not it) -> ? (maybe) -> ✓ (it!)
 const MARKS = { "": "", x: "✗", q: "?", y: "✓" }, NEXT = { "": "x", x: "q", q: "y", y: "" };
 function notesModal() {
-  const p = me();
+  if (viewer() < 0) return;
+  const p = G.players[viewer()];
   const row = id => {
     const c = card(id), mark = p.notes[id] || "";
     const tag = p.hand.includes(id) ? "your card" : p.seen[id] !== undefined ? "shown by " + esc(nameOf(p.seen[id])) : "";
@@ -501,6 +588,7 @@ const RULES = "<h3>How to play</h3>" +
   "<h4>Your turn</h4><p class='note'>Roll and move up to that many squares, or into a room. Corner rooms have secret passages: take one instead of rolling.</p>" +
   "<h4>Suggest</h4><p class='note'>When you go into a room, suggest who did it and with what, in that room. Going round the table, the first player holding one of those cards shows you one, in secret. If you're named in someone's suggestion you get dragged into their room, and on your next turn you can suggest there without moving.</p>" +
   "<h4>Accuse</h4><p class='note'>When you're sure, accuse (any time on your turn). Right and you win. Wrong and you're out, but you still show cards.</p>" +
+  "<h4>Computer players</h4><p class='note'>Any seat can be a computer. Easy ones only learn from what they're shown. Sharp ones watch everything and only accuse when they're certain.</p>" +
   "<h4>Passing the phone</h4><p class='note'>Your cards and notebook only show on your turn. When the screen says pass the phone, do it, and only tap once the right person is holding it.</p>";
 
 /* =====================================================================
@@ -510,17 +598,30 @@ function openSetup() {
   closeModal();
   showScreen("setup");
   const saved = store.get("manor.names", []);
-  ui.seats = ui.seats.length ? ui.seats : [0, 1, 2, 3, 4, 5].map(i => ({ name: saved[i] || "Player " + (i + 1), ch: i }));
+  const types = store.get("manor.types", []);
+  ui.seats = ui.seats.length ? ui.seats : [0, 1, 2, 3, 4, 5].map(i => ({ name: saved[i] || "Player " + (i + 1), ch: i, type: types[i] || "human" }));
   renderSetup();
 }
 function renderSetup() {
   $("counts").innerHTML = [2, 3, 4, 5, 6].map(n => '<button class="' + (n === ui.count ? "on" : "") + '" data-n="' + n + '">' + n + "</button>").join("");
+  const TYPE = { human: "👤 Human", easy: "🤖 Easy", sharp: "🤖 Sharp" };
   $("seats").innerHTML = ui.seats.slice(0, ui.count).map((s, i) =>
-    '<div class="seat"><button class="tokBtn" data-i="' + i + '">' + tokenHtml(s.ch) + '</button><div class="who"><input data-i="' + i + '" value="' + esc(s.name) + '" maxlength="14" autocomplete="off"><small>' + SUSPECTS[s.ch].name + "</small></div></div>").join("");
+    '<div class="seat ' + (s.type !== "human" ? "isbot" : "") + '"><button class="tokBtn" data-i="' + i + '">' + tokenHtml(s.ch) + '</button><div class="who">' +
+    (s.type === "human" ? '<input data-i="' + i + '" value="' + esc(s.name) + '" maxlength="14" autocomplete="off">' : '<span class="botname">' + SUSPECTS[s.ch].short + "</span>") +
+    "<small>" + SUSPECTS[s.ch].name + '</small></div><button class="typeBtn ' + s.type + '" data-t="' + i + '">' + TYPE[s.type] + "</button></div>").join("");
+  const anyHuman = ui.seats.slice(0, ui.count).some(s => s.type === "human");
+  $("startBtn").disabled = !anyHuman;
+  $("startBtn").textContent = anyHuman ? "Deal the cards" : "Need at least one human";
 }
 $("counts").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { ui.count = +b.dataset.n; renderSetup(); } });
 $("seats").addEventListener("input", e => { if (e.target.dataset.i !== undefined) ui.seats[+e.target.dataset.i].name = e.target.value; });
 $("seats").addEventListener("click", e => {
+  const tb = e.target.closest(".typeBtn");
+  if (tb) {
+    const s = ui.seats[+tb.dataset.t];
+    s.type = { human: "easy", easy: "sharp", sharp: "human" }[s.type];
+    renderSetup(); return;
+  }
   const b = e.target.closest(".tokBtn"); if (!b) return;
   const i = +b.dataset.i, used = ui.seats.slice(0, ui.count).map(s => s.ch);
   let ch = ui.seats[i].ch;
@@ -528,8 +629,11 @@ $("seats").addEventListener("click", e => {
   ui.seats[i].ch = ch; renderSetup();
 });
 $("startBtn").onclick = () => {
-  const seats = ui.seats.slice(0, ui.count).map((s, i) => ({ name: (s.name || "").trim() || "Player " + (i + 1), ch: s.ch }));
+  const seats = ui.seats.slice(0, ui.count).map((s, i) => s.type === "human"
+    ? { name: (s.name || "").trim() || "Player " + (i + 1), ch: s.ch }
+    : { name: SUSPECTS[s.ch].short, ch: s.ch, bot: s.type });
   store.set("manor.names", ui.seats.map(s => s.name));
+  store.set("manor.types", ui.seats.map(s => s.type));
   newGame(seats);
 };
 $("setupBack").onclick = () => { G = store.get(SAVE, null); showTitle(); };
