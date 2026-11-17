@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Murder at Muddlecombe Manor</title>
+<meta name="description" content="A pass-and-play whodunnit for 2 to 6 players.">
+<link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#1d130d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Puzzle Garden">
+<link rel="apple-touch-icon" href="../icons/icon-180.png">
+<link rel="icon" href="../icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap">
+<link rel="stylesheet" href="manor.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- Title screen -->
+  <section class="screen" id="title">
+    <a class="back" href="../">&lsaquo; Puzzle Garden</a>
+    <div class="logo">
+      <span class="small">Murder at</span>
+      <span class="big">Muddlecombe Manor</span>
+      <span class="drip">a whodunnit for 2&ndash;6 players</span>
+    </div>
+    <div class="btns">
+      <button class="btn gold" id="continueBtn" hidden>Continue game</button>
+      <button class="btn" id="newBtn">New game</button>
+      <button class="btn dim" id="rulesBtn">How to play</button>
+    </div>
+    <p class="foot">One phone, passed around the table.</p>
+  </section>
+
+  <!-- Choosing players -->
+  <section class="screen" id="setup" hidden>
+    <div class="bar"><button class="icon" id="setupBack" aria-label="Back">&lsaquo;</button><h2>Who's playing?</h2><span></span></div>
+    <div class="counts" id="counts"></div>
+    <p class="hint">Tap a token to change character.</p>
+    <div class="seats" id="seats"></div>
+    <button class="btn gold" id="startBtn">Deal the cards</button>
+  </section>
+
+  <!-- "Pass the phone" screen: hides everything so only the right person sees their cards -->
+  <section class="screen cover" id="cover" hidden>
+    <div class="token big" id="coverToken"></div>
+    <p class="passTo">Pass the phone to</p>
+    <h2 id="coverName"></h2>
+    <p class="char" id="coverChar"></p>
+    <p class="msg" id="coverMsg"></p>
+    <p class="tap">Tap when only <b id="coverName2"></b> can see the screen</p>
+  </section>
+
+  <!-- The game -->
+  <section class="screen" id="game" hidden>
+    <div class="gbar">
+      <button class="icon" id="menuBtn" aria-label="Menu">&#9776;</button>
+      <div id="turnInfo"></div>
+      <button class="icon" id="logBtn" aria-label="What's happened">&#128220;</button>
+    </div>
+    <div id="boardWrap"><canvas id="board"></canvas></div>
+    <div id="panel">
+      <p id="status"></p>
+      <div class="acts">
+        <div id="die" class="die" hidden></div>
+        <button class="btn gold" id="rollBtn">Roll</button>
+        <button class="btn" id="passageBtn" hidden>Secret passage</button>
+        <button class="btn" id="suggestBtn">Suggest</button>
+        <button class="btn red" id="accuseBtn">Accuse</button>
+      </div>
+      <div class="acts small">
+        <button class="btn dim" id="cardsBtn">My cards</button>
+        <button class="btn dim" id="notesBtn">Notebook</button>
+        <button class="btn dim" id="endBtn">End turn</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Pop-up sheet used for picking, notebook, cards, rules and results -->
+<div id="modal" hidden><div class="sheet" id="sheet"></div></div>
+
+<script src="data.js"></script>
+<script src="game.js"></script>
+<script src="bots.js"></script>
+</body>
+</html>

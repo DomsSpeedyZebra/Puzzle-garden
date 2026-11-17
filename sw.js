@@ -1,12 +1,13 @@
 /* Service worker: saves the game's files on the device so it works offline.
    IMPORTANT: change CACHE (e.g. v2, v3...) every time you update any file,
    otherwise phones keep showing the old version. */
-const CACHE = "puzzle-garden-v7";
+const CACHE = "puzzle-garden-v9";
 const FILES = [
   "./", "index.html", "css/style.css", "js/levels.js", "js/game.js",
   "manifest.json", "icons/icon-180.png", "icons/icon-192.png", "icons/icon-512.png",
   "bridge/", "bridge/index.html", "bridge/bridge.css", "bridge/physics.js", "bridge/levels.js", "bridge/game.js",
-  "bouncer/", "bouncer/index.html", "bouncer/bouncer.css", "bouncer/levels.js", "bouncer/sound.js", "bouncer/game.js"
+  "bouncer/", "bouncer/index.html", "bouncer/bouncer.css", "bouncer/levels.js", "bouncer/sound.js", "bouncer/game.js",
+  "manor/", "manor/index.html", "manor/manor.css", "manor/data.js", "manor/game.js", "manor/bots.js"
 ];
 
 // 1. Install: download and store all the game files
