@@ -18,6 +18,7 @@ On iPhone: open in Safari → Share → **Add to Home Screen**.
 | `sw.js` | Saves files on the device so it works offline |
 | `icons/` | Home-screen icons |
 | `bridge/` | **Bridge Builders**: `physics.js` (the truss simulation), `levels.js`, `game.js` |
+| `manor/` | **Murder at Muddlecombe Manor**: `data.js` (suspects, weapons, rooms, board layout), `game.js` |
 | `bouncer/` | **Bouncer**: `levels.js` (brick layouts), `sound.js` (effects + music made in code), `game.js` |
 
 ## Adding a level
@@ -85,3 +86,12 @@ Hold FIRE when the shooter is on. The fire button can go on either side (menu or
 Levels live in `bouncer/levels.js` (a 12-wide letter grid; the key is at the top of the file).
 Mode settings (speed, bouncer size, drop rate) are in the `MODES` block near the top of `bouncer/game.js`.
 After the last level it loops back to level 1, 10% faster each time.
+
+## Murder at Muddlecombe Manor
+
+A pass-and-play whodunnit for 2–6 players on one phone. One suspect, one weapon and one room are hidden;
+roll, move into rooms, make suggestions (the next player who can must secretly show you a card), and accuse when sure.
+The phone shows a "pass to…" screen whenever it needs to change hands, so cards stay private.
+Each player has an auto-filling notebook. The game saves after every step, so it can be closed and continued.
+
+Characters, weapons, rooms and the board layout are all in `manor/data.js`. Computer players are planned next.
